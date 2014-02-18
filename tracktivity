@@ -1,0 +1,38 @@
+#!/bin/bash
+# since we are launching from cron, we need to tell it which display to use
+export DISPLAY=:0.0 
+
+PROFILE=~/.tracktivity
+LOGFILE=tracktivity.log 
+
+if [ ! -d "$PROFILE" ]; then
+  mkdir -p "$PROFILE"
+  touch "$PROFILE/$LOGFILE"
+fi
+
+function sedeasy {
+  sed -i "s/$(echo $1 | sed -e 's/\([[\/.*]\|\]\)/\\&/g')/$(echo $2 | sed -e 's/[\/&]/\\&/g')/g" $3
+}
+
+while true; do
+  if [[ $(gnome-screensaver-command -q | head -1) =~ "inactive" ]]
+  then
+    windowid=`xdotool getwindowfocus`
+    windowclass=`xprop -id $windowid | grep WM_CLASS | sed -e 's/WM_CLASS(STRING) = //'`
+    windowname=`xprop -id $windowid | grep "WM_NAME(STRING)" | sed -e 's/WM_NAME(STRING) = //'`
+
+    data="`date +%Y-%m-%d`, $windowclass, $windowname"
+    pos=`grep "$data" "$PROFILE/$LOGFILE" | wc -l`
+    if [ $pos -eq 0 ]; then
+      newdata="$data, 1"
+      echo "$newdata" >> "$PROFILE/$LOGFILE"
+    else
+      olddata=`grep "$data" $PROFILE/$LOGFILE`
+      newdata=`echo $olddata | awk '{$NF=$NF+1; print $0}'`
+      sedeasy "$olddata" "$newdata" "$PROFILE/$LOGFILE"
+    fi
+    echo $newdata
+
+    sleep 1
+  fi
+done
