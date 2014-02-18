@@ -30,10 +30,22 @@ timeprocessing()
 # Std. Output:  Time values of project
 #
 {
-  
-  echo "processing project: $1"
-  echo "total array elements: ${#filter[@]}"
-  echo "filter array: ${filter[@]}"
+  #echo "processing project: $1"
+  #echo "total array elements: ${#filter[@]}"
+  #echo "filter array: ${filter[@]}"
+  hours=0
+  for (( v=0; v<${#filter[@]}; v++ ))
+  do
+    h=$(grep $2${filter[v]} montime.log | awk '{ sum+=$NF } END { printf("%.2f\n",sum/3600)}')
+    hours=$(echo $hours + $h | bc)
+    #echo "filter: ${filter[v]}"
+    #grep ${filter[v]} montime.log 
+  done 
+#  if [ $hours -ne 0 ];
+#  then
+    printf "%s: %.2f\n" "$1" "$hours" 
+#  fi
+   totalhours=$(echo $totalhours + $hours | bc)
 }
 
 # get all projects from config
@@ -51,6 +63,7 @@ done < conf
 #echo "total array elements: ${#item[@]}"
 #echo "item array: ${item[@]}"
 
+totalhours=0
 resetvars
 
 for (( c=0; c<${#item[@]}; c++ ))
@@ -96,4 +109,7 @@ do
 
   esac
 
+
 done
+
+echo "Total Hours:  $totalhours"
