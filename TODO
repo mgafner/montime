@@ -28,5 +28,6 @@ along with montime.  If not, see <http://www.gnu.org/licenses/>.
 
 # --- later --------------------------------------------------------------------
 
-   * ...
+   * tinu  list all times which are not filtered by a project
+   * tinu  ask what happend during inactive time when activity detected
 

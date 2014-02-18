@@ -1,0 +1,99 @@
+#!/bin/bash
+
+#grep `date +%Y-%m-%d`"$@" montime.log 
+#echo -n $@ 
+#grep `date +%Y-%m-%d`"$@" montime.log | awk '{ sum+=$NF } END { printf(": %.2f\n",sum/3600)}'
+
+# functions
+
+resetvars()
+{
+unset data
+unset project
+unset comment
+unset billable
+unset filter
+unset active
+f=0
+}
+
+timeprocessing()
+#
+# Description:  Count and print the times of a project
+#
+# Parameter  :  $1 - project name
+#               $2 - date
+#		$3 - comment
+#		$4 - billable
+#		$5 - filters (array by name)
+#
+# Std. Output:  Time values of project
+#
+{
+  
+  echo "processing project: $1"
+  echo "total array elements: ${#filter[@]}"
+  echo "filter array: ${filter[@]}"
+}
+
+# get all projects from config
+
+i=0
+while read line; do
+  if [[ "$line" =~ ^[^#]*= ]]; then
+    item[i]=${line%%=*}
+    value[i]=${line#*=}
+    ((i++))
+  fi
+done < conf
+
+# debug info:
+#echo "total array elements: ${#item[@]}"
+#echo "item array: ${item[@]}"
+
+resetvars
+
+for (( c=0; c<${#item[@]}; c++ ))
+do
+  # debug info:
+  #  echo "${item[$c]}=${value[$c]}"
+
+  case "${item[$c]}" in
+
+    data)      
+	data="${value[$c]}"
+	;;
+
+    project)   
+	project="${value[$c]}"
+	;;
+
+    comment)   
+	comment="${value[$c]}"
+	;;
+
+    billable)  
+	billable="${value[$c]}"
+	;;
+
+    filter)    
+	filter[f]="${value[$c]}"
+        ((f++))
+	;;
+
+    active)
+        if [ "${value[$c]}" == "1" ] ; 
+        then
+	  #echo "Project:  $project"
+          #echo "Data:     $data"
+          #echo "Comment:  $comment"
+          #echo "Billable: $billable"
+          #echo "Filter:   $filter"
+	  timeprocessing "$project" "$data" "$comment" "$billable" filter
+        fi
+	resetvars
+	;;
+
+  esac
+
+done
