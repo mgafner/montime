@@ -1,0 +1,38 @@
+This file is part of tracktivity                                                    
+https://github.com/seanmctigi/tracktivity                                            
+                                                                                
+tracktivity is free software: you can redistribute it and/or modify                 
+it under the terms of the GNU General Public License as published by            
+the Free Software Foundation, either version 3 of the License, or               
+(at your option) any later version.                                             
+                                                                                
+tracktivity is distributed in the hope that it will be useful,                      
+but WITHOUT ANY WARRANTY; without even the implied warranty of                  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                   
+GNU General Public License for more details.                                    
+                                                                                
+You should have received a copy of the GNU General Public License               
+along with tracktivity.  If not, see <http://www.gnu.org/licenses/>.
+
+# --- useful info ---------------------------------------------------------------
+
+just start tracking with:
+/path/to/tracktivity &
+
+
+# --- notes --------------------------------------------------------------------
+
+Coding Style Guide
+we are following the coding styles of 
+ . the GNU Coding Standards
+      http://www.gnu.org/prep/standards/html_node/index.html
+ . the Bash Reference Manual
+      http://www.gnu.org/software/bash/manual/bashref.html
+ . Advanced Bash Scripting Guide
+      http://tldp.org/LDP/abs/html/index.html
+ . Bash Style Guide and Coding Standards
+      [german]  http://www3.fh-swf.de/fbin/mehner/download/StyleGuideShell.pdf
+      [english] http://lug.fh-swf.de/vim/vim-bash/StyleGuideShell.en.pdf
+ . A Guide to Unix Shell Quoting
+      http://www.mpi-inf.mpg.de/~uwe/lehre/unixffb/quoting-guide.html
+
