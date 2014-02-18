@@ -18,21 +18,21 @@ along with tracktivity.  If not, see <http://www.gnu.org/licenses/>.
 tracktivity
 ===========
 
---- Overview -------------------------------------------------------------------
-synopsis/short description: 
----------------------------
+synopsis/short description
+--------------------------
 Track your working time by monitoring active program window in X.
 
-long description (english):
----------------------------
+
+long description (english)
+--------------------------
 tracktivity is a script which helps you to count your working time based on the
 programs you are working on.
 
 [TODO: complete this text] 
 
 
-long description (german):
---------------------------
+long description (german)
+-------------------------
 mit tracktivity wird überwacht, welche Programme der Benutzer unter X Window
 aktiv nutzt. Die Zeit wird täglich in Sekunden aufsummiert.
 
@@ -41,7 +41,8 @@ Mit tracktivity kann die Zeit ausgewertet und auf Projektkonten verteilt werden.
 [TODO: complete this text] 
 
 
---- Requirements ---------------------------------------------------------------
+Requirements
+------------
 
    * bash - The GNU Bourne Again SHell
    * gnome-screensaver - GNOME screen saver and locker
@@ -50,16 +51,20 @@ Mit tracktivity kann die Zeit ausgewertet und auf Projektkonten verteilt werden.
    * x11-utils - X11 utilities
 
 
---- Debian ---------------------------------------------------------------------
+Debian
+------
 
 apt-get install bash gnome-screensaver sed xdotool x11-utils
 
 
---- Building Debian packages from source ---------------------------------------
+Building Debian packages from source
+------------------------------------
 
 [not yet defined]
 
---- Usage ----------------------------------------------------------------------
+
+Usage
+-----
 
 just start tracking with:
 /path/to/tracktivity &
