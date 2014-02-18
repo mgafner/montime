@@ -35,21 +35,28 @@ while true; do
   if [[ $(gnome-screensaver-command -q | head -1) =~ "inactive" ]]
   then
     windowid=`xdotool getwindowfocus`
-    windowclass=`xprop -id $windowid | grep WM_CLASS | sed -e 's/WM_CLASS(STRING) = //'`
-    windowname=`xprop -id $windowid | grep "WM_NAME(STRING)" | sed -e 's/WM_NAME(STRING) = //'`
-
-    data="`date +%Y-%m-%d`, $windowclass, $windowname"
-    pos=`grep "$data" "$PROFILE/$LOGFILE" | wc -l`
-    if [ $pos -eq 0 ]; then
-      newdata="$data, 1"
-      echo "$newdata" >> "$PROFILE/$LOGFILE"
+    if [ "$windowid" == "" ]; then
+      windowclass="unknown, unknown"
+      windowtitle="unknown"
     else
-      olddata=`grep "$data" $PROFILE/$LOGFILE`
-      newdata=`echo $olddata | awk '{$NF=$NF+1; print $0}'`
-      sedeasy "$olddata" "$newdata" "$PROFILE/$LOGFILE"
+      windowclass=`xprop -id $windowid | grep WM_CLASS | sed -e 's/WM_CLASS(STRING) = //'`
+      windowtitle=`xprop -id $windowid | grep "WM_NAME(STRING)" | sed -e 's/WM_NAME(STRING) = //'`
     fi
-    echo $newdata
-
-    sleep 1
+    data="`date +%Y-%m-%d`, $windowclass, $windowtitle"
+  else
+    data=`date +%Y-%m-%d`', "inactive", "inactive", "inactive"'
   fi
+
+  pos=`grep "$data" "$PROFILE/$LOGFILE" | wc -l`
+  if [ $pos -eq 0 ]; then
+    newdata="$data, 1"
+    echo "$newdata" >> "$PROFILE/$LOGFILE"
+  else
+    olddata=`grep "$data" $PROFILE/$LOGFILE`
+    newdata=`echo $olddata | awk '{$NF=$NF+1; print $0}'`
+    sedeasy "$olddata" "$newdata" "$PROFILE/$LOGFILE"
+  fi
+  echo $newdata
+
+  sleep 1
 done
