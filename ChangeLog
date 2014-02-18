@@ -1,22 +1,22 @@
-This file is part of tracktivity
-https://github.com/seanmctigi/tracktivity
+This file is part of montime
+https://github.com/seanmctigi/montime
 
-tracktivity is free software: you can redistribute it and/or modify
+montime is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-tracktivity is distributed in the hope that it will be useful,
+montime is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with tracktivity.  If not, see <http://www.gnu.org/licenses/>.
+along with montime.  If not, see <http://www.gnu.org/licenses/>.
 
 
 -----------------
-tracktivity 0.0.1
+montime 0.0.1
 -----------------
 
    * initial release
