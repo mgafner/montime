@@ -38,11 +38,11 @@ timeprocessing()
     #echo "filter: ${filter[v]}"
     #grep ${filter[v]} montime.log 
   done 
-#  if [ $hours -ne 0 ];
-#  then
+  if [ "$hours" != "0" ];
+  then
     printf "%s: %.2f\n" "$1" "$hours" 
-#  fi
-   totalhours=$(echo $totalhours + $hours | bc)
+  fi
+  totalhours=$(echo $totalhours + $hours | bc)
 }
 
 show-unmatched()
