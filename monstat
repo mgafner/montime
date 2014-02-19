@@ -1,8 +1,5 @@
 #!/bin/bash
 
-#grep `date +%Y-%m-%d`"$@" montime.log 
-#echo -n $@ 
-#grep `date +%Y-%m-%d`"$@" montime.log | awk '{ sum+=$NF } END { printf(": %.2f\n",sum/3600)}'
 
 # functions
 
@@ -48,8 +45,36 @@ timeprocessing()
    totalhours=$(echo $totalhours + $hours | bc)
 }
 
-# get all projects from config
+show-unmatched()
+{
 
+echo
+echo "all unmatched:"
+
+# get all filters
+unset filter
+for (( c=0; c<${#item[@]}; c++ ))
+do
+  i=1
+  case "${item[$c]}" in
+    filter)
+        if [ "$i" == "1" ];
+        then
+	  filter="${value[$c]}"
+          ((i++))
+        else
+           filter="$filter\|${value[$c]}"
+        fi
+        ;;
+  esac
+done
+echo "filter: $filter"
+grep "$filter" montime.log
+}
+
+# get all projects from config
+get-config()
+{
 i=0
 while read line; do
   if [[ "$line" =~ ^[^#]*= ]]; then
@@ -62,7 +87,13 @@ done < conf
 # debug info:
 #echo "total array elements: ${#item[@]}"
 #echo "item array: ${item[@]}"
+}
 
+#################################################
+# main
+#################################################
+
+get-config
 totalhours=0
 resetvars
 
@@ -113,3 +144,7 @@ do
 done
 
 echo "Total Hours:  $totalhours"
+
+echo 
+show-unmatched
+
