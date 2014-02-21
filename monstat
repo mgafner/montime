@@ -35,7 +35,8 @@ timeprocessing()
   do
     h=$(grep $2${filter[v]} montime.log | awk '{ sum+=$NF } END { printf("%.2f\n",sum/3600)}')
     hours=$(echo $hours + $h | bc)
-    #echo "filter: ${filter[v]}"
+    echo "data: $2"
+    echo "filter: $2${filter[v]}"
     #grep ${filter[v]} montime.log 
   done 
   if [ "$hours" != "0" ];
@@ -53,23 +54,29 @@ echo "all unmatched:"
 
 # get all filters
 unset filter
+i=1
 for (( c=0; c<${#item[@]}; c++ ))
 do
-  i=1
   case "${item[$c]}" in
     filter)
         if [ "$i" == "1" ];
         then
-	  filter="${value[$c]}"
+#	  filter="${value[$c]}"
+	  filter="(\$0 !~ /${value[$c]}/)"
           ((i++))
         else
-           filter="$filter\|${value[$c]}"
+#           filter="$filter\|${value[$c]}"
+	  filter="$filter&&(\$0 !~ /${value[$c]}/)"
         fi
+echo "i, filter: $i, $filter"
         ;;
   esac
 done
 echo "filter: $filter"
-grep "$filter" montime.log
+#grep "$filter" montime.log
+#cat montime.log | awk '($0 !~ /.*Navigator.*Iceweasel.*/)&&($0 !~ /.*Mail.*/)&&($0 !~ /.*dove.*/)'
+#cat montime.log | awk -vfilter="$filter" '{ print filter}'
+cat montime.log | awk -vfilter="$filter" filter
 }
 
 # get all projects from config
@@ -106,6 +113,10 @@ do
 
     data)      
 	data="${value[$c]}"
+	if [ "$data" == "today" ]; then
+          data=`date +%Y-%m-%d`
+	fi
+	echo "data case: $data"
 	;;
 
     project)   
@@ -128,11 +139,12 @@ do
     active)
         if [ "${value[$c]}" == "1" ] ; 
         then
-	  #echo "Project:  $project"
-          #echo "Data:     $data"
-          #echo "Comment:  $comment"
-          #echo "Billable: $billable"
-          #echo "Filter:   $filter"
+	  echo "Project:  $project"
+          echo "Data:     $data"
+          echo "Comment:  $comment"
+          echo "Billable: $billable"
+          echo "Filter:   $filter"
+          echo "-----------------------"
 	  timeprocessing "$project" "$data" "$comment" "$billable" filter
         fi
 	resetvars
@@ -146,5 +158,5 @@ done
 echo "Total Hours:  $totalhours"
 
 echo 
-show-unmatched
+#show-unmatched
 

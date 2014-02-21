@@ -36,11 +36,17 @@ while true; do
   then
     windowid=`xdotool getwindowfocus`
     if [ "$windowid" == "" ]; then
-      windowclass="unknown, unknown"
-      windowtitle="unknown"
+      windowclass='"unknown", "unknown"'
+      windowtitle='"unknown"'
     else
       windowclass=`xprop -id $windowid | grep WM_CLASS | sed -e 's/WM_CLASS(STRING) = //'`
+      if [ "$windowclass" == "" ]; then
+        windowclass='"unknown", "unknown"'
+      fi
       windowtitle=`xprop -id $windowid | grep "WM_NAME(STRING)" | sed -e 's/WM_NAME(STRING) = //'`
+      if [ "$windowtitle" == "" ]; then
+        windowtitle='"unknown"'
+      fi
     fi
     data="`date +%Y-%m-%d`, $windowclass, $windowtitle"
   else
