@@ -5,7 +5,6 @@
 
 resetvars()
 {
-unset data
 unset project
 unset comment
 unset billable
@@ -19,7 +18,7 @@ timeprocessing()
 # Description:  Count and print the times of a project
 #
 # Parameter  :  $1 - project name
-#               $2 - date
+#               $2 - data
 #		$3 - comment
 #		$4 - billable
 #		$5 - filters (array by name)
@@ -35,9 +34,6 @@ timeprocessing()
   do
     h=$(grep $2${filter[v]} montime.log | awk '{ sum+=$NF } END { printf("%.2f\n",sum/3600)}')
     hours=$(echo $hours + $h | bc)
-    echo "data: $2"
-    echo "filter: $2${filter[v]}"
-    #grep ${filter[v]} montime.log 
   done 
   if [ "$hours" != "0" ];
   then
@@ -61,22 +57,15 @@ do
     filter)
         if [ "$i" == "1" ];
         then
-#	  filter="${value[$c]}"
 	  filter="(\$0 !~ /${value[$c]}/)"
           ((i++))
         else
-#           filter="$filter\|${value[$c]}"
 	  filter="$filter&&(\$0 !~ /${value[$c]}/)"
         fi
-echo "i, filter: $i, $filter"
         ;;
   esac
 done
-echo "filter: $filter"
-#grep "$filter" montime.log
-#cat montime.log | awk '($0 !~ /.*Navigator.*Iceweasel.*/)&&($0 !~ /.*Mail.*/)&&($0 !~ /.*dove.*/)'
-#cat montime.log | awk -vfilter="$filter" '{ print filter}'
-cat montime.log | awk -vfilter="$filter" filter
+cat montime.log | awk "$filter"
 }
 
 # get all projects from config
@@ -116,7 +105,6 @@ do
 	if [ "$data" == "today" ]; then
           data=`date +%Y-%m-%d`
 	fi
-	echo "data case: $data"
 	;;
 
     project)   
@@ -139,12 +127,12 @@ do
     active)
         if [ "${value[$c]}" == "1" ] ; 
         then
-	  echo "Project:  $project"
-          echo "Data:     $data"
-          echo "Comment:  $comment"
-          echo "Billable: $billable"
-          echo "Filter:   $filter"
-          echo "-----------------------"
+	  #echo "Project:  $project"
+          #echo "Data:     $data"
+          #echo "Comment:  $comment"
+          #echo "Billable: $billable"
+          #echo "Filter:   $filter"
+          #echo "-----------------------"
 	  timeprocessing "$project" "$data" "$comment" "$billable" filter
         fi
 	resetvars
@@ -158,5 +146,5 @@ done
 echo "Total Hours:  $totalhours"
 
 echo 
-#show-unmatched
+show-unmatched
 
