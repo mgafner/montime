@@ -32,7 +32,7 @@ timeprocessing()
   hours=0
   for (( v=0; v<${#filter[@]}; v++ ))
   do
-    h=$(grep $2${filter[v]} montime.log | awk '{ sum+=$NF } END { printf("%.2f\n",sum/3600)}')
+    h=$(awk "/$2/&&/${filter[v]}/" montime.log | awk '{ sum+=$NF } END { printf("%.2f\n",sum/3600)}')
     hours=$(echo $hours + $h | bc)
   done 
   if [ "$hours" != "0" ];
@@ -45,8 +45,6 @@ timeprocessing()
 show-unmatched()
 {
 
-echo
-echo "all unmatched:"
 
 # get all filters
 unset filter
@@ -57,7 +55,7 @@ do
     filter)
         if [ "$i" == "1" ];
         then
-	  filter="(\$0 !~ /${value[$c]}/)"
+	  filter="(/2014-02-23/)&&(\$0 !~ /${value[$c]}/)"
           ((i++))
         else
 	  filter="$filter&&(\$0 !~ /${value[$c]}/)"
@@ -65,7 +63,11 @@ do
         ;;
   esac
 done
-cat montime.log | awk "$filter"
+h=$(awk "$filter" montime.log | awk '{ sum+=$NF } END { printf("%.2f\n",sum/3600)}')
+printf "%s: %.2f\n" "Total unmatched time" "$h"
+echo
+echo "all unmatched:"
+awk "$filter" montime.log
 }
 
 # get all projects from config
