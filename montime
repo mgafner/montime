@@ -28,7 +28,10 @@ if [ ! -d "$PROFILE" ]; then
 fi
 
 function sedeasy {
-  sed -i "s/$(echo $1 | sed -e 's/\([[\/.*]\|\]\)/\\&/g')/$(echo $2 | sed -e 's/[\/&]/\\&/g')/g" $3
+#  sed -i "s/$(echo $1 | sed -e 's/\([[\/.*]\|\]\)/\\&/g')/$(echo $2 | sed -e 's/[\/&]/\\&/g')/g" $3
+  oldsed=$(echo $1 | sed -e 's/[]\/$*.^|[]/\\&/g')
+  newsed=$(echo $2 | sed -e 's/[]\/$*.^|[]/\\&/g')
+  sed -i "s/$oldsed/$newsed/g" $3
 }
 
 while true; do
@@ -48,21 +51,21 @@ while true; do
         windowtitle='"unknown"'
       fi
     fi
-    data="`date +%Y-%m-%d`, $windowclass, $windowtitle"
+    line="`date +%Y-%m-%d`, $windowclass, $windowtitle"
   else
-    data=`date +%Y-%m-%d`', "inactive", "inactive", "inactive"'
+    line=`date +%Y-%m-%d`', "inactive", "inactive", "inactive"'
   fi
 
-  pos=`grep "$data" "$PROFILE/$LOGFILE" | wc -l`
+  pos=`grep -F "$line" "$PROFILE/$LOGFILE" | wc -l`
   if [ $pos -eq 0 ]; then
-    newdata="$data, 1"
-    echo "$newdata" >> "$PROFILE/$LOGFILE"
+    newline="$line, 1"
+    echo "$newline" >> "$PROFILE/$LOGFILE"
   else
-    olddata=`grep "$data" $PROFILE/$LOGFILE`
-    newdata=`echo $olddata | awk '{$NF=$NF+1; print $0}'`
-    sedeasy "$olddata" "$newdata" "$PROFILE/$LOGFILE"
+    oldline=`grep -F "$line" $PROFILE/$LOGFILE`
+    newline=`echo $oldline | awk '{$NF=$NF+1; print $0}'`
+    sedeasy "$oldline" "$newline" "$PROFILE/$LOGFILE"
   fi
-  echo $newdata
+  echo $newline
 
   sleep 1
 done
