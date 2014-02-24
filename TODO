@@ -22,12 +22,15 @@ along with montime.  If not, see <http://www.gnu.org/licenses/>.
 
 # --- 0.1.0 release ------------------------------------------------------------
 
-   * tinu  write documentation
-   * tinu  write reporting code
+   * write documentation
+   * write reporting code
+   * sort output of unmatched entries
+   * sort output of unmatched entries
 
 
 # --- later --------------------------------------------------------------------
 
-   * tinu  list all times which are not filtered by a project
-   * tinu  ask what happend during inactive time when activity detected
+   * list all times which are not filtered by a project
+   * ask what happend during inactive time when activity detected
+   * use zenity or something similar for gui
 
