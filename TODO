@@ -33,4 +33,7 @@ along with montime.  If not, see <http://www.gnu.org/licenses/>.
    * list all times which are not filtered by a project
    * ask what happend during inactive time when activity detected
    * use zenity or something similar for gui
+   * do a better escape of pipe char [|] in window titles
+     example: http://www.ubuntu.com/certification/hardware/201304-13407/components/
+     atm it is written escaped to the log, better would be original title in logfile
 

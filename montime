@@ -29,8 +29,8 @@ fi
 
 function sedeasy {
 #  sed -i "s/$(echo $1 | sed -e 's/\([[\/.*]\|\]\)/\\&/g')/$(echo $2 | sed -e 's/[\/&]/\\&/g')/g" $3
-  oldsed=$(echo $1 | sed -e 's/[]\/$*.^|[]/\\&/g')
-  newsed=$(echo $2 | sed -e 's/[]\/$*.^|[]/\\&/g')
+  oldsed=$(echo "$1" | sed -e 's/[]\/$*.^[]/\\&/g')
+  newsed=$(echo "$2" | sed -e 's/[]\/$*.^[]/\\&/g')
   sed -i "s/$oldsed/$newsed/g" $3
 }
 
@@ -56,13 +56,16 @@ while true; do
     line=`date +%Y-%m-%d`', "inactive", "inactive", "inactive"'
   fi
 
+  #escape pipe char
+  line=`echo "$line" | awk  '{gsub(/\|/,"\\\|"); print}'`
+
   pos=`grep -F "$line" "$PROFILE/$LOGFILE" | wc -l`
   if [ $pos -eq 0 ]; then
     newline="$line, 1"
     echo "$newline" >> "$PROFILE/$LOGFILE"
   else
     oldline=`grep -F "$line" $PROFILE/$LOGFILE`
-    newline=`echo $oldline | awk '{$NF=$NF+1; print $0}'`
+    newline=`echo "$oldline" | awk '{$NF=$NF+1; print $0}'`
     sedeasy "$oldline" "$newline" "$PROFILE/$LOGFILE"
   fi
   echo $newline
