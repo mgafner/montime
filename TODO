@@ -25,7 +25,7 @@ along with montime.  If not, see <http://www.gnu.org/licenses/>.
    * write documentation
    * write reporting code
    * sort output of unmatched entries
-   * sort output of unmatched entries
+   * check if already one montime daemon is running
 
 
 # --- later --------------------------------------------------------------------
@@ -36,4 +36,5 @@ along with montime.  If not, see <http://www.gnu.org/licenses/>.
    * do a better escape of pipe char [|] in window titles
      example: http://www.ubuntu.com/certification/hardware/201304-13407/components/
      atm it is written escaped to the log, better would be original title in logfile
+   * do a better escape of & char in windows titles
 

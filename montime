@@ -29,8 +29,10 @@ DEBUG=0                                         # debug level 0-3
 DISPLAY=:0.0 					# if we are launching from cron, 
 						#  we need to tell it which display to use
 E_NOARGS=65                                     # standard errorlevel definition
+LOGFILE=montime.log 
 PID=$$                                          # montime's pid
 PROFILEDIR="$HOME/.montime"                     # profiledir
+PROFILE=~/.montime
 TMPDIR=/tmp                                     # here to put temporary files
 VERBOSE=0                                       # verbosity level
 
@@ -42,9 +44,118 @@ BIN_STREAMRIPPER=$(which streamripper)
 PostExit=0                                      # Used for delayed shutdown's
 
 
-# Functions --------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
+# Functions 
+# 
+# functions are sorted in an alphabetical order
+#
+
+# ------------------------------------------------------------------------------
+check_requirements()
+# ------------------------------------------------------------------------------
+#
+# Description:  Check if all necessary tools and binaries are available
+#
+# Parameter  :  none
+#
+# Output     :  logging
+#               forces an error if a needed binary is not available
+#
+{
+if [ $DEBUG -ge 3 ]; then set -x
+fi
+
+logging -d "checking montime requirements"
+if [ -z $BIN_STREAMRIPPER ]; then RequirementsMsg=streamripper
+fi
+
+if [ ! -z $RequirementsMsg ];
+then
+  logging -e "Program $RequirementsMsg not installed or not in PATH"
+  return 1
+fi
+
+if [ ! -w "$WORKDIR" ];
+then
+  logging -e "Cannot write into $WORKDIR directory"
+  return 1
+fi
+
+return 0
+}
+
+# ------------------------------------------------------------------------------
+control_c()
+# ------------------------------------------------------------------------------
+#
+# Description:  run if user hits control-c
+#
+# Parameter  :  none
+#
+# Output     :  logging
+#
+{
+if [ $DEBUG -ge 3 ]; then set -x
+fi
+
+echo ""
+logging -n "CTRL-C catched"
+shutdown_montime 0
+}
+
+# ------------------------------------------------------------------------------
+daemon_loop()
+# ------------------------------------------------------------------------------
+{
+  while true; do
+    if [[ $(gnome-screensaver-command -q | head -1) =~ "inactive" ]]
+    then
+      windowid=`xdotool getwindowfocus`
+      if [ "$windowid" == "" ]; then
+        windowclass='"unknown", "unknown"'
+        windowtitle='"unknown"'
+      else
+        windowclass=`xprop -id $windowid | grep WM_CLASS | sed -e 's/WM_CLASS(STRING) = //'`
+        if [ "$windowclass" == "" ]; then
+          windowclass='"unknown", "unknown"'
+        fi
+        windowtitle=`xprop -id $windowid | grep "WM_NAME(STRING)" | sed -e 's/WM_NAME(STRING) = //'`
+        if [ "$windowtitle" == "" ]; then
+          windowtitle='"unknown"'
+        fi
+      fi
+      line="`date +%Y-%m-%d`, $windowclass, $windowtitle"
+    else
+      line=`date +%Y-%m-%d`', "inactive", "inactive", "inactive"'
+    fi
+
+    #escape pipe char
+    #TODO: find a better way to escape pipe char, should be unchanged in logfile
+    line=`echo "$line" | awk  '{gsub(/\|/,"\\\|"); print}'`
+
+    #escape & char
+    #TODO: find a better way to escape & char, should be unchanged in logfile
+    line=`echo "$line" | awk  '{gsub(/\&/,"+"); print}'`
+
+    pos=`grep -F "$line" "$PROFILE/$LOGFILE" | wc -l`
+    if [ $pos -eq 0 ]; then
+      newline="$line, 1"
+      echo "$newline" >> "$PROFILE/$LOGFILE"
+    else
+      oldline=`grep -F "$line" $PROFILE/$LOGFILE`
+      newline=`echo "$oldline" | awk '{$NF=$NF+1; print $0}'`
+      sedeasy "$oldline" "$newline" "$PROFILE/$LOGFILE"
+    fi
+    echo $newline
+
+    sleep 1
+  done
+}
+
+# ------------------------------------------------------------------------------
 logging()
+# ------------------------------------------------------------------------------
 #
 # Description:  It writes messages to logfile or standard output.
 #
@@ -89,8 +200,40 @@ elif [ $verbose -eq 0 ] ; then
 fi
 }
 
+# ------------------------------------------------------------------------------
+shutdown_montime()
+# ------------------------------------------------------------------------------
+#
+# Description:  shutting down montime and cleaning up
+#
+# Parameter  :  none
+#
+# Output     :  logging
+#
+{
+if [ $DEBUG -ge 1 ]; then set -x
+fi
 
+logging -n "Shutting down montime..."
+ExitCode=$1
+
+case $ExitCode in
+        0)
+          logging -s "montime stopped."
+        ;;
+        1)
+          logging -w "montime stopped partionally unsuccuessfull"
+        ;;
+esac
+logging -a "Returnvalue=$ExitCode"
+
+exit $ExitCode
+}
+
+
+# ------------------------------------------------------------------------------
 usage()
+# ------------------------------------------------------------------------------
 #
 # Description:  shows help text
 #
@@ -116,16 +259,7 @@ EOF
 return 0
 }
 
-
-
-PROFILE=~/.montime
-LOGFILE=montime.log 
-
-if [ ! -d "$PROFILE" ]; then
-  mkdir -p "$PROFILE"
-  touch "$PROFILE/$LOGFILE"
-fi
-
+# ------------------------------------------------------------------------------
 function sedeasy {
 #  sed -i "s/$(echo $1 | sed -e 's/\([[\/.*]\|\]\)/\\&/g')/$(echo $2 | sed -e 's/[\/&]/\\&/g')/g" $3
   oldsed=$(echo "$1" | sed -e 's/[]\/$*.^[]/\\&/g')
@@ -133,41 +267,55 @@ function sedeasy {
   sed -i "s/$oldsed/$newsed/g" $3
 }
 
-while true; do
-  if [[ $(gnome-screensaver-command -q | head -1) =~ "inactive" ]]
-  then
-    windowid=`xdotool getwindowfocus`
-    if [ "$windowid" == "" ]; then
-      windowclass='"unknown", "unknown"'
-      windowtitle='"unknown"'
-    else
-      windowclass=`xprop -id $windowid | grep WM_CLASS | sed -e 's/WM_CLASS(STRING) = //'`
-      if [ "$windowclass" == "" ]; then
-        windowclass='"unknown", "unknown"'
-      fi
-      windowtitle=`xprop -id $windowid | grep "WM_NAME(STRING)" | sed -e 's/WM_NAME(STRING) = //'`
-      if [ "$windowtitle" == "" ]; then
-        windowtitle='"unknown"'
-      fi
-    fi
-    line="`date +%Y-%m-%d`, $windowclass, $windowtitle"
-  else
-    line=`date +%Y-%m-%d`', "inactive", "inactive", "inactive"'
-  fi
 
-  #escape pipe char
-  line=`echo "$line" | awk  '{gsub(/\|/,"\\\|"); print}'`
+# ------------------------------------------------------------------------------
+# Main
+# ------------------------------------------------------------------------------
 
-  pos=`grep -F "$line" "$PROFILE/$LOGFILE" | wc -l`
-  if [ $pos -eq 0 ]; then
-    newline="$line, 1"
-    echo "$newline" >> "$PROFILE/$LOGFILE"
-  else
-    oldline=`grep -F "$line" $PROFILE/$LOGFILE`
-    newline=`echo "$oldline" | awk '{$NF=$NF+1; print $0}'`
-    sedeasy "$oldline" "$newline" "$PROFILE/$LOGFILE"
-  fi
-  echo $newline
+# trap keyboard interrupt (control-c)
+trap control_c SIGINT
 
-  sleep 1
+if [ ! -d "$PROFILE" ]; then
+  mkdir -p "$PROFILE"
+  touch "$PROFILE/$LOGFILE"
+fi
+
+# When you need an argument that needs a value, you put the ":" right after
+# the argument in the optstring. If your var is just a flag, withou any
+# additional argument, just leave the var, without the ":" following it.
+#
+# please keep letters in alphabetic order
+#
+while getopts "dhqv" OPTION
+do
+  case $OPTION in
+    d)
+      daemon_loop
+      exit 0
+      ;;
+    h)
+      usage
+      exit 0
+      ;;
+    q)
+      DEBUG=0
+      VERBOSE=0
+      # add LOGGING variable and change logging function to be able to turn
+      # all output off
+      ;;
+    v)
+      VERBOSE=1
+      ;;
+    \?)
+      logging -e "Invalid option: -$OPTARG" >&2
+      usage
+      shutdown_montime 1
+      ;;
+    :)
+      logging -e "Option -$OPTARG requires an argument." >&2
+      shutdown_montime 1
+      ;;
+  esac
 done
+
+
