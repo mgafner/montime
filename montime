@@ -16,8 +16,107 @@
 # You should have received a copy of the GNU General Public License
 # along with montime.  If not, see <http://www.gnu.org/licenses/>.
 
-# if we are launching from cron, we need to tell it which display to use
-export DISPLAY=:0.0 
+
+# Constants --------------------------------------------------------------------
+#
+# you may overwrite all this constants in
+#   ~/.montime/montimerc
+# and/or
+#   ~/.montime/profiles/<profile>
+#
+
+DEBUG=0                                         # debug level 0-3
+DISPLAY=:0.0 					# if we are launching from cron, 
+						#  we need to tell it which display to use
+E_NOARGS=65                                     # standard errorlevel definition
+PID=$$                                          # montime's pid
+PROFILEDIR="$HOME/.montime"                     # profiledir
+TMPDIR=/tmp                                     # here to put temporary files
+VERBOSE=0                                       # verbosity level
+
+# define all binaries
+BIN_STREAMRIPPER=$(which streamripper)
+
+
+# Variables --------------------------------------------------------------------
+PostExit=0                                      # Used for delayed shutdown's
+
+
+# Functions --------------------------------------------------------------------
+
+logging()
+#
+# Description:  It writes messages to logfile or standard output.
+#
+# Parameter  :  $1 - the level of message
+#               $2 - the message
+#
+# Std. Output:  Logging messages.
+#
+{
+ if [ $DEBUG -ge 3 ]; then set -x
+ fi
+
+ logtime="$(date +%H):$(date +%M):$(date +%S)"
+ prefix=""
+ stderr=-1
+ verbose=0
+
+ case $1 in
+   -e)     prefix="Error:   " stderr=1 verbose=0;;
+   -i)     prefix="Info:    " stderr=0 verbose=0;;
+   -n)     prefix="Notice:  " stderr=0 verbose=1;;
+   -s)     prefix="Success: " stderr=0 verbose=0;;
+   -w)     prefix="Warning: " stderr=1 verbose=1;;
+   -d)     prefix="Debug:   " stderr=1 verbose=2;;
+ esac
+ shift
+
+# if VERBOSE mode is set, then show all messages, which we want to show in verbose mode
+if [ $verbose -ge 1 ] && [ $VERBOSE -ge 1 ] ; then
+ if [ "$stderr" -eq 1 ]; then
+   echo "$logtime $prefix" $1 >&2
+ else
+   echo "$logtime $prefix" $1
+ fi
+# else show only messages which are defined to show in non-verbose mode
+elif [ $verbose -eq 0 ] ; then
+ if [ "$stderr" -eq 1 ]; then
+   echo "$logtime $prefix" $1 >&2
+ else
+   echo "$logtime $prefix" $1
+ fi
+fi
+}
+
+
+usage()
+#
+# Description:  shows help text
+#
+# Parameter  :  none
+#
+# Output     :  shows help text
+#
+{
+cat << EOF
+
+usage: 
+   $0 -d
+or
+   $0 -l
+
+OPTIONS:
+  -d    Daemon mode for logging in the background
+  -h    Show this message
+  -q    Quiet
+  -v    Verbose, verbosity level 0|1|2|3 (level 0 is standard, -v without number is like 1)
+
+EOF
+return 0
+}
+
+
 
 PROFILE=~/.montime
 LOGFILE=montime.log 

@@ -55,7 +55,7 @@ do
     filter)
         if [ "$i" == "1" ];
         then
-	  filter="(/2014-02-23/)&&(\$0 !~ /${value[$c]}/)"
+	  filter="(/2014-02-25/)&&(\$0 !~ /${value[$c]}/)"
           ((i++))
         else
 	  filter="$filter&&(\$0 !~ /${value[$c]}/)"
