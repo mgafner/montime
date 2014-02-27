@@ -25,6 +25,7 @@
 #   ~/.montime/profiles/<profile>
 #
 
+BASENAME=`basename "$0"`
 DEBUG=0                                         # debug level 0-3
 DISPLAY=:0.0 					# if we are launching from cron, 
 						#  we need to tell it which display to use
@@ -451,40 +452,102 @@ fi
 #
 # please keep letters in alphabetic order
 #
-while getopts "dhqv" OPTION
-do
-  case $OPTION in
-    d)
-      daemon_loop
-      exit 0
-      ;;
-    h)
-      usage
-      exit 0
-      ;;
-    q)
-      DEBUG=0
-      VERBOSE=0
-      # add LOGGING variable and change logging function to be able to turn
-      # all output off
-      ;;
-    s)
-      ;;
-    u)
-      ;;
-    v)
-      VERBOSE=1
-      ;;
-    \?)
-      logging -e "Invalid option: -$OPTARG" >&2
-      usage
-      shutdown_montime 1
-      ;;
-    :)
-      logging -e "Option -$OPTARG requires an argument." >&2
-      shutdown_montime 1
-      ;;
-  esac
+#while getopts "dhqsuv" OPTION
+#do
+#  case $OPTION in
+#    d)
+#      daemon_loop
+#      exit 0
+#      ;;
+#    h)
+#      usage
+#      exit 0
+#      ;;
+#    q)
+#      DEBUG=0
+#      VERBOSE=0
+#      # add LOGGING variable and change logging function to be able to turn
+#      # all output off
+#      ;;
+#    s)
+#      ;;
+#    u)
+#      ;;
+#    v)
+#      VERBOSE=1
+#      ;;
+#    \?)
+#      logging -e "Invalid option: -$OPTARG" >&2
+#      usage
+#      shutdown_montime 1
+#      ;;
+#    :)
+#      logging -e "Option -$OPTARG requires an argument." >&2
+#      shutdown_montime 1
+#      ;;
+#  esac
+#done
+
+# getopt long
+#
+# for optional arguments put "::"
+# for no arguments, just flags put ""
+# for required arguments put ":"
+#
+# read the options
+options=`getopt -q -o dhqs::u::v:: --long daemon,help,quiet,stat::,unmatched::,verbose:: -n "$BASENAME" -- "$@"`
+# getopt  returns  error  code 
+#  0 for successful parsing, 
+#  1 if getopt(3) returns errors, 
+#  2 if it does not understand its own parameters, 
+#  3 if an internal error occurs like out-of-memory, 
+#  4 if it is called with -T.
+case "$?" in
+  1)
+    echo "something went wrong, maybe not the correct options?"
+    usage
+    exit 1
+    ;;
+  2)
+    echo "something went wrong with getopts, tell it to the author"
+    exit 1
+    ;;
+  3)
+    echo "something went wrong, maybe out of memory?"
+    exit 1
+    ;;
+esac
+
+eval set -- "$options"
+
+#while getopts "dhqsuv" OPTION
+# extract options and their arguments into variables.
+while true ; do
+    case "$1" in
+        -a|--arga)
+            case "$2" in
+                "") ARG_A='some default value' ; shift 2 ;;
+                *) ARG_A=$2 ; shift 2 ;;
+            esac ;;
+        -b|--argb) ARG_B=1 ; shift ;;
+        -c|--argc)
+            case "$2" in
+                "") shift 2 ;;
+                *) ARG_C=$2 ; shift 2 ;;
+            esac ;;
+        -d|--daemon)
+            daemon_loop
+            shift
+            exit 0
+            ;;
+        -h|--help)
+            usage
+            shift
+            exit 0
+            ;;
+        --) shift ; break ;;
+        *) echo "Internal error!" ; exit 1 ;;
+    esac
 done
 
 
