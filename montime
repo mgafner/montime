@@ -438,18 +438,17 @@ $BASENAME $VERSION
 
 USAGE: 
   $BASENAME -d                run as daemon in background 
-  $BASENAME -l                list statistics
+  $BASENAME -s                list statistics
 
 OPTIONS:
 
   -d, --daemon              Daemon mode for logging in the background
   -h, --help                display this help and exit
-  -s                        show stats of matched log entries, categories, projects
-  -u                        show stats of unmatched log entries
+  -s, --stat[s|istics]      show stats of matched log entries, categories, projects
+  -u, --unmatch[ed]         show stats of unmatched log entries
   -q, --quiet               suppress printing of output and errors
   -v, --verbose             verbose, verbosity level 0|1|2|3 (level 0 is standard, -v without number is level 1)
   -V, --version             output version information and exit
-  -n, --quiet, --silent
 
 EXAMPLES:
   $BASENAME -d
