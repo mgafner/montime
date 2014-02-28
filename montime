@@ -433,22 +433,42 @@ usage()
 # Output     :  shows help text
 #
 {
-cat << EOF
+more << EOF
 $BASENAME $VERSION
 
 USAGE: 
   $BASENAME -d                run as daemon in background 
   $BASENAME -s                list statistics
 
+(not yet implemented)
+  $BASENAME -s [from date yyyy-mm-dd] [to date yyyy-mm-dd]
+                            list statistics from date to date, if no date is given, it takes current day
+
 OPTIONS:
 
   -d, --daemon              Daemon mode for logging in the background
   -h, --help                display this help and exit
-  -s, --stat[s|istics]      show stats of matched log entries, categories, projects
-  -u, --unmatch[ed]         show stats of unmatched log entries
   -q, --quiet               suppress printing of output and errors
   -v, --verbose             verbose, verbosity level 0|1|2|3 (level 0 is standard, -v without number is level 1)
   -V, --version             output version information and exit
+
+(not yet implemented)
+  -a, --add [ticket@]project hours billable comment
+                            manual add worktime
+  -A, --all                 list all project (active and not active)
+  -b, --billable [0|1]      list all unbillable (0) or billable (1), if no argument is given, list both
+  -e, --expression          search given regular expression
+  -E, --edit [config]       edit config, if no argument is given, edit default config
+  -f, --file                use given config file, if no path is given, it takes config file in default config directory
+  -h, --help [option]       display this help and exit, if argument is given it shows specific help to argument
+  -k, --kill                kill running daemon
+  -l, --list [proj*ects|cat*egory|comm*ents|filt*ers|act*ive|inact*ive]
+                            list config
+  -o, --output [csv,html,psv,tsv,txt]
+                            define output format, output is always printed to standard out
+  -s, --stat[s|istics]      show stats of matched log entries, categories, projects
+  -T, --test                makes selftest against a logfile and a configfile written by the author
+  -u, --unmatch[ed]         show stats of unmatched log entries
 
 EXAMPLES:
   $BASENAME -d
