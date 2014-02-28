@@ -25,7 +25,10 @@
 #   ~/.montime/profiles/<profile>
 #
 
+AUTHOR_NAME="Martin Gafner"
+AUTHOR_EMAIL="martin@gafner.name"
 BASENAME=`basename "$0"`
+COPYRIGHT=2014
 DEBUG=0                                         # debug level 0-3
 DISPLAY=:0.0 					# if we are launching from cron, 
 						#  we need to tell it which display to use
@@ -36,6 +39,7 @@ PROFILEDIR="$HOME/.montime"                     # profiledir
 PROFILE=~/.montime
 TMPDIR=/tmp                                     # here to put temporary files
 VERBOSE=0                                       # verbosity level
+VERSION="0.1.0"					# current version of montime
 
 # define all binaries
 BIN_STREAMRIPPER=$(which streamripper)
@@ -227,6 +231,29 @@ elif [ $verbose -eq 0 ] ; then
 fi
 }
 
+# ------------------------------------------------------------------------------
+print-version()
+# ------------------------------------------------------------------------------
+{
+echo "montime $VERSION"
+cat << EOF
+Copyright (C) $COPYRIGHT $AUTHOR_NAME, <$AUTHOR_EMAIL>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see http://www.gnu.org/licenses/.
+EOF
+return 0
+}
 
 # ------------------------------------------------------------------------------
 process-time()
@@ -407,20 +434,29 @@ usage()
 #
 {
 cat << EOF
+$BASENAME $VERSION
 
-usage: 
-   $0 -d
-or
-   $0 -l
+USAGE: 
+  $BASENAME -d                run as daemon in background 
+  $BASENAME -l                list statistics
 
 OPTIONS:
-  -d    Daemon mode for logging in the background
-  -h    Show this message
-  -s    show stats of matched log entries, categories, projects
-  -u    show stats of unmatched log entries
-  -q    Quiet
-  -v    Verbose, verbosity level 0|1|2|3 (level 0 is standard, -v without number is like 1)
 
+  -d, --daemon              Daemon mode for logging in the background
+  -h, --help                display this help and exit
+  -s                        show stats of matched log entries, categories, projects
+  -u                        show stats of unmatched log entries
+  -q, --quiet               suppress printing of output and errors
+  -v, --verbose             verbose, verbosity level 0|1|2|3 (level 0 is standard, -v without number is level 1)
+  -V, --version             output version information and exit
+  -n, --quiet, --silent
+
+EXAMPLES:
+  $BASENAME -d
+  $BASENAME -s -c CATEGORY
+
+Report bugs to: $AUTHOR_EMAIL or on github:
+$BASENAME home page: <http://www.github.com/seanmctigi/montime/>
 EOF
 return 0
 }
@@ -446,47 +482,6 @@ if [ ! -d "$PROFILE" ]; then
   touch "$PROFILE/$LOGFILE"
 fi
 
-# When you need an argument that needs a value, you put the ":" right after
-# the argument in the optstring. If your var is just a flag, withou any
-# additional argument, just leave the var, without the ":" following it.
-#
-# please keep letters in alphabetic order
-#
-#while getopts "dhqsuv" OPTION
-#do
-#  case $OPTION in
-#    d)
-#      daemon_loop
-#      exit 0
-#      ;;
-#    h)
-#      usage
-#      exit 0
-#      ;;
-#    q)
-#      DEBUG=0
-#      VERBOSE=0
-#      # add LOGGING variable and change logging function to be able to turn
-#      # all output off
-#      ;;
-#    s)
-#      ;;
-#    u)
-#      ;;
-#    v)
-#      VERBOSE=1
-#      ;;
-#    \?)
-#      logging -e "Invalid option: -$OPTARG" >&2
-#      usage
-#      shutdown_montime 1
-#      ;;
-#    :)
-#      logging -e "Option -$OPTARG requires an argument." >&2
-#      shutdown_montime 1
-#      ;;
-#  esac
-#done
 
 # getopt long
 #
@@ -495,7 +490,7 @@ fi
 # for required arguments put ":"
 #
 # read the options
-options=`getopt -q -o dhqs::u::v:: --long daemon,help,quiet,stat::,unmatched::,verbose:: -n "$BASENAME" -- "$@"`
+options=`getopt -q -o dhqs::u::v::V --long daemon,help,quiet,stat::,unmatched::,verbose::,version -n "$BASENAME" -- "$@"`
 # getopt  returns  error  code 
 #  0 for successful parsing, 
 #  1 if getopt(3) returns errors, 
@@ -520,7 +515,6 @@ esac
 
 eval set -- "$options"
 
-#while getopts "dhqsuv" OPTION
 # extract options and their arguments into variables.
 while true ; do
     case "$1" in
@@ -544,6 +538,39 @@ while true ; do
             usage
             shift
             exit 0
+            ;;
+        -q|--quiet)
+            DEBUG=0
+            VERBOSE=0
+            # add LOGGING variable and change logging function to be able to turn
+            # all output off
+            shift
+            ;;
+        -s|--stat*)
+            shift
+            ;;
+        -u|--unmatch*)
+            shift
+            ;;
+        -v|--verbose)
+            VERBOSE=1
+            shift
+            ;;
+        -V|--version)
+            print-version
+            shift
+            exit 0
+            ;;
+        \?)
+            logging -e "Invalid option: -$OPTARG" >&2
+            usage
+            shift
+            shutdown_montime 1
+            ;;
+        :)
+            logging -e "Option -$OPTARG requires an argument." >&2
+            shift
+            shutdown_montime 1
             ;;
         --) shift ; break ;;
         *) echo "Internal error!" ; exit 1 ;;
