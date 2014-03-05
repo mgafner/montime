@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # This file is part of montime
-# https://github.com/seanmctigi/montime
+# https://github.com/mgafner/montime
 #
 # montime is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -475,7 +475,7 @@ EXAMPLES:
   $BASENAME -s -c CATEGORY
 
 Report bugs to: $AUTHOR_EMAIL or on github:
-$BASENAME home page: <http://www.github.com/seanmctigi/montime/>
+$BASENAME home page: <http://www.github.com/mgafner/montime/>
 EOF
 return 0
 }
