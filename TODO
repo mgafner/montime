@@ -37,4 +37,6 @@ along with montime.  If not, see <http://www.gnu.org/licenses/>.
      example: http://www.ubuntu.com/certification/hardware/201304-13407/components/
      atm it is written escaped to the log, better would be original title in logfile
    * do a better escape of & char in windows titles
-
+   * work together with zeitgeist
+     https://launchpad.net/zeitgeist
+     https://launchpad.net/gnome-activity-journal
